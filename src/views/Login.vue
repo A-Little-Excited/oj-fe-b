@@ -17,7 +17,7 @@
         </div>
         <div class="form-item">
           <img src="../assets/images/bingo.png">
-          <el-input v-model="password" placeholder="请输⼊密码" />
+          <el-input v-model="password" type="password" placeholder="请输⼊密码" show-password />
         </div>
         <div class="submit-box" @click="loginFun">
           登录
@@ -29,12 +29,24 @@
 
 <script setup>
   import { ref } from 'vue'
-  import { loginService } from '@/apis/suser';
+  import { loginService } from '@/apis/suser'
+  import { setToken } from '@/utils/cookie'
+  import router from '@/router'
   const userAccount = ref('')
   const password = ref('')
 
-  function loginFun() {
-    loginService(userAccount, password)
+  async function loginFun() {
+    try {
+      const loginResult = await loginService(userAccount.value, password.value)
+      console.log("loginResult:", loginResult);
+      
+      // 1. 登录成功则跳转到后台管理页面
+      router.push("/oj/system")
+      // 2. 将 token 存储到 Cookie 中
+      setToken(loginResult.data)
+    } catch(error) {
+      console.log("error:", error)
+    }
   }
 </script>
 
