@@ -1,4 +1,5 @@
 import axios from "axios";
+import { getToken } from "./cookie";
 
 // 使用 axios 的 create 方法创建一个 axios 实例
 // baseURL: 发起请求时的公共前缀
@@ -8,8 +9,10 @@ const service = axios.create({
   timeout: 5000
 });
 
+// 响应拦截器, 负责在响应到达前端处理逻辑之前, 根据响应的正常与否分别进行处理
 service.interceptors.response.use(
   // 响应的 Http 状态码为成功时的回调函数
+  // res: 响应对象
   (res) => {
     const code = res.data.code;
     const msg = res.data.msg;
@@ -29,6 +32,21 @@ service.interceptors.response.use(
     new Promise.reject(error);
   }
 );
+
+// 请求拦截器, 负责在前端请求发出之前, 统一在请求头中加上 token
+service.interceptors.request.use(
+  // config: 请求对象
+  (config) => {
+    if (getToken()) {
+      config.headers["Authorization"] = "Bearer " + getToken();
+    }
+    return config;
+  },
+  (error) => {
+    console.log(error);
+    Promise.reject(error);
+  }
+)
 
 // 将 service 暴露给其他模块可供进行导入
 export default service
