@@ -1,5 +1,6 @@
 import axios from "axios";
-import { getToken } from "./cookie";
+import { getToken, removeToken } from "./cookie";
+import router from "@/router";
 
 // 使用 axios 的 create 方法创建一个 axios 实例
 // baseURL: 发起请求时的公共前缀
@@ -20,6 +21,14 @@ service.interceptors.response.use(
       // 由于响应中包含的内容很多, 例如响应的 Http 状态码、headers 等, 但是我们需要的响应数据是在其 data 部分
       // 因此此处做了拆包, 只将响应的 data 部分返回给下层
       return Promise.resolve(res.data);
+    } else if (code === 3001) {
+      // 当 token 过期或失效时, 需要将前端存储的旧 token 进行删除, 并跳转回登录页面重新登录
+      ElMessage.error(msg);
+      removeToken();
+      router.push('/oj/login');
+
+      // reject 就相当于 Java 中抛出异常
+      return Promise.reject(new Error(msg));
     } else {
       ElMessage.error(msg);
       // reject 就相当于 Java 中抛出异常

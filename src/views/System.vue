@@ -23,19 +23,19 @@
           <el-menu class="el-menu" router>
             <el-menu-item index="/oj/system/cuser">
               <el-icon>
-                <Management />
+                <User />
               </el-icon>
               <span>用户管理</span>
             </el-menu-item>
             <el-menu-item index="/oj/system/question">
               <el-icon>
-                <Management />
+                <EditPen />
               </el-icon>
               <span>题目管理</span>
             </el-menu-item>
             <el-menu-item index="/oj/system/exam">
               <el-icon>
-                <Management />
+                <Medal />
               </el-icon>
               <span>竞赛管理</span>
             </el-menu-item>
@@ -51,7 +51,9 @@
 
 <script setup>
 import {
-  Management,
+  User,
+  EditPen,
+  Medal,
   ArrowDownBold,
   SwitchButton
 } from '@element-plus/icons-vue'
