@@ -9,7 +9,7 @@
     <el-form-item>
       <el-button plain @click="onSearch">搜索</el-button>
       <el-button plain @click="onReset" type="info">重置</el-button>
-      <el-button plain type="primary" :icon="Plus">添加题目</el-button>
+      <el-button plain type="primary" :icon="Plus" @click="onAddQuestion">添加题目</el-button>
     </el-form-item>
   </el-form>
   <el-table height="526px" :data="questionList">
@@ -34,8 +34,10 @@
     </el-table-column>
   </el-table>
   <el-pagination size="small" background layout="total, sizes, prev, pager, next, jumper" :total="totalData" 
-  :page-sizes="[5, 10, 15, 20]" @size-change="handleSizeChange" @current-change="handleCurrentChange"
-  v-model:page-size="params.pageSize" v-model:current-page="params.pageNum" />
+    :page-sizes="[5, 10, 15, 20]" @size-change="handleSizeChange" @current-change="handleCurrentChange"
+    v-model:page-size="params.pageSize" v-model:current-page="params.pageNum" />
+  <!-- 监听子组件 question-drawer 自定义事件 success, 并绑定事件处理器 onSuccess -->
+  <question-drawer ref="questionDrawerRef" @success="onSuccess"></question-drawer>
 </template>
 
 <script setup>
@@ -43,6 +45,7 @@ import { Plus } from "@element-plus/icons-vue"
 import Selector from "@/components/QuestionSelector.vue"
 import { getQuestionListService } from "@/apis/question";
 import { reactive, ref } from "vue";
+import QuestionDrawer from "@/components/QuestionDrawer.vue";
 
 const params = reactive({
   pageNum: 1,
@@ -94,6 +97,18 @@ function onReset() {
   params.pageNum = 1
   params.title = ''
   params.difficulty = ''
+  getQuestionList()
+}
+
+// question-drawer 子组件的实例, 使用响应式数据存储该实例
+const questionDrawerRef = ref()
+function onAddQuestion() {
+  questionDrawerRef.value.open()
+}
+
+function onSuccess() {
+  // 当题目添加成功, 重新获取题目列表, 并需要先将页码置为第一页而非停留在原先的页码
+  params.pageNum = 1
   getQuestionList()
 }
 </script>

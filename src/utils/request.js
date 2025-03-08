@@ -2,6 +2,8 @@ import axios from "axios";
 import { getToken, removeToken } from "./cookie";
 import router from "@/router";
 
+// 设置 axios 请求的 content-type 为 json, 因为后端接收参数都是接收 json 格式的数据
+axios.defaults.headers["Content-Type"] = "application/json;charset=utf-8";
 // 使用 axios 的 create 方法创建一个 axios 实例
 // baseURL: 发起请求时的公共前缀
 // timeout: 发起请求时的超时时间, 如果规定时间内没有收到响应, 就会中断请求并返回超时错误, 作用是提高用户体验
