@@ -26,9 +26,9 @@
     <el-table-column prop="createTime" label="创建时间" width="180px" />
     <el-table-column label="操作" width="100px" fixed="right">
       <template #default="{ row }">
-        <el-button type="text">编辑
+        <el-button type="text" @click="onEdit(row.questionId)">编辑
         </el-button>
-        <el-button type="text" class="red">删除
+        <el-button type="text" class="red" @click="onDelete(row.questionId)">删除
         </el-button>
       </template>
     </el-table-column>
@@ -43,7 +43,7 @@
 <script setup>
 import { Plus } from "@element-plus/icons-vue"
 import Selector from "@/components/QuestionSelector.vue"
-import { getQuestionListService } from "@/apis/question";
+import { delQuestionService, getQuestionListService } from "@/apis/question";
 import { reactive, ref } from "vue";
 import QuestionDrawer from "@/components/QuestionDrawer.vue";
 
@@ -92,6 +92,7 @@ function onSearch() {
   getQuestionList();
 }
 
+// 点击"重置"按钮将页面重置为第一页
 function onReset() {
   params.pageSize = 10
   params.pageNum = 1
@@ -102,12 +103,36 @@ function onReset() {
 
 // question-drawer 子组件的实例, 使用响应式数据存储该实例
 const questionDrawerRef = ref()
+// 点击"添加题目"时通过子组件实例调用 open 方法来打开抽屉
 function onAddQuestion() {
   questionDrawerRef.value.open()
 }
 
-function onSuccess() {
-  // 当题目添加成功, 重新获取题目列表, 并需要先将页码置为第一页而非停留在原先的页码
+function onSuccess(service) {
+  if (service === 'add') {
+    // 当题目添加成功, 重新获取题目列表, 并需要先将页码置为第一页而非停留在原先的页码
+    params.pageNum = 1
+  }
+  getQuestionList()
+}
+
+function onEdit(questionId) {
+  questionDrawerRef.value.open(questionId);
+}
+
+async function onDelete(questionId) {
+  await ElMessageBox.confirm(
+    '确认删除?',
+    '温馨提示',
+    {
+      confirmButtonText: '确认',
+      cancelButtonText: '取消',
+      type: 'warning',
+    }
+  )
+
+  await delQuestionService(questionId)
+  ElMessage.success('删除成功')
   params.pageNum = 1
   getQuestionList()
 }

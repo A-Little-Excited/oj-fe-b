@@ -45,7 +45,9 @@ onBeforeUnmount(() => {
   }
 });
 
+// 暴露该方法给父组件进行数据传递
 function setAceCode(content) {
+  // 将 content 赋值给编辑器
   editor.setValue(content)
 }
 
