@@ -82,7 +82,7 @@ function handleSizeChange(newSize) {
 function handleCurrentChange(newPage) {
   // 使用 v-model 将 params.pageNum 与分页组件的当前页码参数进行绑定之后
   // 当页面上的当前页码发生改变后, 会直接改变 params.pageNum, 因此可以省略下述代码
-  params.pageNum = newPage
+  // params.pageNum = newPage
   getQuestionList()
 }
 
