@@ -64,12 +64,12 @@
 import { Plus } from '@element-plus/icons-vue'
 import { getExamListService } from '@/apis/exam'
 import { reactive, ref } from 'vue'
+import router from '@/router';
 
 // 取当前时间和竞赛开始进行比较, 页面部分根据结果判断展示是否是未开赛
 // true: 未开赛, false: 已开赛
 function isNotStartExam(exam) {
   const now = new Date();  //当前时间
-  console.log(new Date(exam.startTime))
   return new Date(exam.startTime) > now
 }
 
@@ -129,5 +129,9 @@ function onReset() {
   // 需要同时将 datetimerange 参数置空, 否则进入 getExamList 会重新将 startTime 和 endTime 进行赋值
   datetimerange.value.length = 0
   getExamList()
+}
+
+function onAddExam() {
+  router.push('/oj/system/updateExam?type=add')
 }
 </script>
