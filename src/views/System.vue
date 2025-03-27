@@ -104,7 +104,7 @@ async function logout() {
 <style lang="scss" scoped>
 .layout-container {
   height: 100vh;
-  background: #f7f7f7;
+  background: linear-gradient(150deg, #f0f9ff 0%, #e6f4ff 100%);
 
   .layout-bottom-box {
     display: flex;

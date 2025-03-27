@@ -12,11 +12,11 @@
       </div>
       <div class="form-box">
         <div class="form-item">
-          <img src="../assets/images/phone.png">
+          <img src="../assets/images/user.png">
           <el-input v-model="userAccount" placeholder="请输⼊账号" />
         </div>
         <div class="form-item">
-          <img src="../assets/images/bingo.png">
+          <img src="../assets/images/password.png">
           <el-input v-model="password" type="password" placeholder="请输⼊密码" show-password />
         </div>
         <div class="submit-box" @click="loginFun">
@@ -41,7 +41,7 @@
       console.log("loginResult:", loginResult);
       
       // 1. 登录成功则跳转到后台管理页面
-      router.push("/oj/system")
+      router.push("/oj/system/cuser")
       // 2. 将 token 存储到 Cookie 中
       setToken(loginResult.data)
     } catch(error) {
