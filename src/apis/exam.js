@@ -23,3 +23,27 @@ export function addExamQuestionService(params = {}) {
     data: params
   })
 }
+
+export function getExamDetailService(examId) {
+  return service({
+    url: '/exam/detail',
+    method: 'get',
+    params: { examId }
+  })
+}
+
+export function editExamService(params = {}) {
+  return service({
+    url: '/exam/edit',
+    method: 'put',
+    data: params
+  })
+}
+
+export function delExamQuestionService(examId, questionId) {
+  return service({
+    url: '/exam/examQuestion/delete',
+    method: 'delete',
+    params: { examId, questionId }
+  })
+}

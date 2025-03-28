@@ -39,7 +39,7 @@
         <el-button class="exam-add-question" :icon="Plus" type="text" @click="addExamQuestion()">
           添加竞赛题目
         </el-button>
-        <el-table height="136px" :data="formExam.examQuestionList" class="question-select-list">
+        <el-table :data="formExam.examQuestionList" class="question-select-list">
           <el-table-column prop="questionId" width="180px" label="题目id" />
           <el-table-column prop="title" :show-overflow-tooltip="true" label="题目标题" />
           <el-table-column prop="difficulty" width="80px" label="题目难度">
@@ -51,7 +51,7 @@
           </el-table-column>
           <el-table-column label="操作" width="80px">
             <template #default="{ row }">
-              <el-button circle type="text" @click="deleteExamQuestion(formExam.examId, row.questionId)">
+              <el-button circle type="text" class="red" @click="deleteExamQuestion(formExam.examId, row.questionId)">
                 删除
               </el-button>
             </template>
@@ -117,7 +117,7 @@ import router from '@/router'
 import { reactive, ref } from "vue"
 import { Plus } from '@element-plus/icons-vue'
 import { useRoute } from 'vue-router';
-import { addExamService, addExamQuestionService } from "@/apis/exam"
+import { addExamService, addExamQuestionService, getExamDetailService, editExamService, delExamQuestionService } from "@/apis/exam"
 import { getQuestionListService } from "@/apis/question";
 
 const type = useRoute().query.type
@@ -147,18 +147,26 @@ async function saveBaseInfo() {
     if (key === 'examDate') {
       fd.append('startTime', formExam.examDate[0]);
       fd.append('endTime', formExam.examDate[1]);
-    } else {
+    } else if (key !== 'startTime' && key !== 'endTime') {
+      // 由于获取竞赛详情时将 startTime 和 endTime 添加到了 formExam 中
+      // 但是如果编辑竞赛是需要获取修改后的日期, 因此从 examDate 中获取参数进行添加即可
+      // 不能再添加 startTime 和 endTime
       fd.append(key, formExam[key])
     }
   }
-  const addResult = await addExamService(fd)
-  // 将 formExam.examId 进行赋值, 后续添加竞赛题目的时候需要使用
-  formExam.examId = addResult.data
+  if (formExam.examId) {
+    await editExamService(fd)
+  } else {
+    const addResult = await addExamService(fd)
+    // 将 formExam.examId 进行赋值, 后续添加竞赛题目的时候需要使用
+    formExam.examId = addResult.data
+  }
   ElMessage.success('竞赛基本信息保存成功')
 }
 
 const questionList = ref([])
 const totalData = ref(0)
+// 获取对话框所需要展示的题目列表
 async function getQuestionList() {
   const result = await getQuestionListService(params)
   questionList.value = result.data
@@ -224,14 +232,17 @@ async function submitSelectQuestion() {
     questionIdSet: questionIdSet.value
   })
   await addExamQuestionService(examQ);
+  // 为竞赛添加题目之后需要重新获取竞赛详情, 以刷新竞赛包含的题目
   getExamDetailById(formExam.examId)
+  // 收起对话框
   dialogVisible.value = false
   ElMessage.success('竞赛题目添加成功')
 }
 
 async function getExamDetail() {
   const examId = useRoute().query.examId
-  if (examId) {
+  if (type === 'edit' && examId) {
+    // 先对 formExam 的 examId 进行赋值, 防止后续编辑操作被误认为是新增操作而报错
     formExam.examId = examId
     getExamDetailById(examId)
   }
@@ -239,18 +250,34 @@ async function getExamDetail() {
 getExamDetail()
 
 async function deleteExamQuestion(examId, questionId) {
+  await ElMessageBox.confirm(
+    '确认删除?',
+    '温馨提示',
+    {
+      confirmButtonText: '确认',
+      cancelButtonText: '取消',
+      type: 'warning',
+    }
+  )
+
   await delExamQuestionService(examId, questionId)
+  // 删除竞赛中的题目之后需要重新获取竞赛详情, 以刷新竞赛包含的题目
   getExamDetailById(examId)
   ElMessage.success('竞赛题目删除成功')
 }
 
+// 根据竞赛 Id 获取竞赛详情
 async function getExamDetailById(examId) {
-  const examDetail = await getExamDetailService(examId)
+  const result = await getExamDetailService(examId)
+  // 如果删除之后的竞赛不包含题目, 此时由于后端添加了注解, 竞赛题目列表为 null 因此没有进行返回
+  // 此时 result.data 就不包含竞赛题目列表这个参数, 无法将 formExam 中的竞赛题目列表置为空, 保持了原来的值
+  // 因此此处在赋值之前先手动置为空, 如果 result.data 中包含竞赛题目列表参数, 就可以重新赋值
+  // 如果不包含也不会导致 formExam 中的竞赛题目列表保留旧值
   formExam.examQuestionList = []
-  Object.assign(formExam, examDetail.data)
-  formExam.examDate = [examDetail.data.startTime, examDetail.data.endTime]
-}
 
+  Object.assign(formExam, result.data)
+  formExam.examDate = [result.data.startTime, result.data.endTime]
+}
 </script>
 
 <style lang="scss" scoped>

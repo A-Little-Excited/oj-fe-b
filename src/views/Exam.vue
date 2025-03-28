@@ -134,4 +134,8 @@ function onReset() {
 function onAddExam() {
   router.push('/oj/system/updateExam?type=add')
 }
+
+function onEdit(examId) {
+  router.push(`/oj/system/updateExam?type=edit&examId=${examId}`)
+}
 </script>
