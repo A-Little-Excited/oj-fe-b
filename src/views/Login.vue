@@ -6,8 +6,8 @@
     <div class="login-box">
       <div class="logo-box">
         <div class="right">
-          <div class="sys-name">⽐特OJ后台管理</div>
-          <div class="sys-sub-name">帮助100万学⽣就业</div>
+          <div class="sys-name">小激动OJ后台管理</div>
+          <div class="sys-sub-name">「激」动不如「码」动——您的代码正在被心跳编译</div>
         </div>
       </div>
       <div class="form-box">

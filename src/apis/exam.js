@@ -47,3 +47,11 @@ export function delExamQuestionService(examId, questionId) {
     params: { examId, questionId }
   })
 }
+
+export function delExamService(examId) {
+  return service({
+    url: '/exam/delete',
+    method: 'delete',
+    params: { examId }
+  })
+}

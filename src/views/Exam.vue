@@ -62,7 +62,7 @@
 
 <script setup>
 import { Plus } from '@element-plus/icons-vue'
-import { getExamListService } from '@/apis/exam'
+import { delExamService, getExamListService } from '@/apis/exam'
 import { reactive, ref } from 'vue'
 import router from '@/router';
 
@@ -137,5 +137,23 @@ function onAddExam() {
 
 function onEdit(examId) {
   router.push(`/oj/system/updateExam?type=edit&examId=${examId}`)
+}
+
+async function onDelete(examId) {
+  await ElMessageBox.confirm(
+    '确认删除?',
+    '温馨提示',
+    {
+      confirmButtonText: '确认',
+      cancelButtonText: '取消',
+      type: 'warning',
+    }
+  )
+
+  await delExamService(examId);
+  ElMessage.success('成功删除竞赛')
+
+  params.pageNum = 1;
+  getExamList();
 }
 </script>
