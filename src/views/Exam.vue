@@ -62,7 +62,7 @@
 
 <script setup>
 import { Plus } from '@element-plus/icons-vue'
-import { delExamService, getExamListService } from '@/apis/exam'
+import { cancelPublishExamService, delExamService, getExamListService, publishExamService } from '@/apis/exam'
 import { reactive, ref } from 'vue'
 import router from '@/router';
 
@@ -155,5 +155,37 @@ async function onDelete(examId) {
 
   params.pageNum = 1;
   getExamList();
+}
+
+async function publishExam(examId) {
+  await ElMessageBox.confirm(
+    '确认发布?',
+    '温馨提示',
+    {
+      confirmButtonText: '确认',
+      cancelButtonText: '取消',
+      type: 'warning',
+    }
+  )
+  
+  await publishExamService(examId);
+  ElMessage.success('竞赛发布成功')
+  getExamList()
+}
+
+async function cancelPublishExam(examId) {
+  await ElMessageBox.confirm(
+    '确认撤销?',
+    '温馨提示',
+    {
+      confirmButtonText: '确认',
+      cancelButtonText: '取消',
+      type: 'warning',
+    }
+  )
+  
+  await cancelPublishExamService(examId);
+  ElMessage.success('竞赛撤销发布成功')
+  getExamList()
 }
 </script>

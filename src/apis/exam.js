@@ -55,3 +55,19 @@ export function delExamService(examId) {
     params: { examId }
   })
 }
+
+export function publishExamService(examId) {
+  return service({
+    url: '/exam/publish',
+    method: 'put',
+    params: { examId }
+  })
+}
+
+export function cancelPublishExamService(examId) {
+  return service({
+    url: '/exam/cancelPublish',
+    method: 'put',
+    params: { examId }
+  })
+}

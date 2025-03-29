@@ -117,7 +117,7 @@ import router from '@/router'
 import { reactive, ref } from "vue"
 import { Plus } from '@element-plus/icons-vue'
 import { useRoute } from 'vue-router';
-import { addExamService, addExamQuestionService, getExamDetailService, editExamService, delExamQuestionService } from "@/apis/exam"
+import { addExamService, addExamQuestionService, getExamDetailService, editExamService, delExamQuestionService, publishExamService } from "@/apis/exam"
 import { getQuestionListService } from "@/apis/question";
 
 const type = useRoute().query.type
@@ -131,7 +131,8 @@ const params = reactive({
   pageNum: 1,
   pageSize: 10,
   difficulty: '',
-  title: ''
+  title: '',
+  excludeIdStr: ''
 })
 
 // 点击返回按钮
@@ -173,12 +174,19 @@ async function getQuestionList() {
   totalData.value = result.total
 }
 
+// 待排除展示的题目 Id 集合
+const excludeQuestionIdSet = ref([])
 // 是否展示对话框
 const dialogVisible = ref(false)
 function addExamQuestion() {
   if (formExam.examId === null || formExam.examId === '') {
     ElMessage.error('请先保存竞赛基本信息')
   } else {
+    // 将已经被选择的题目排除之后再进行题目列表展示
+    console.log(excludeQuestionIdSet.value)
+    const excludeQuestionIdStr = excludeQuestionIdSet.value.join(';');
+    params.excludeIdStr = excludeQuestionIdStr
+
     getQuestionList()
     dialogVisible.value = true
   }
@@ -208,8 +216,19 @@ function onReset() {
 }
 
 async function publishExam() {
-  await publishExamService(formExam.examId)
-  router.push("/oj/layout/exam")
+  await ElMessageBox.confirm(
+    '确认发布?',
+    '温馨提示',
+    {
+      confirmButtonText: '确认',
+      cancelButtonText: '取消',
+      type: 'warning',
+    }
+  )
+  
+  await publishExamService(formExam.examId);
+  ElMessage.success('竞赛发布成功')
+  router.push('/oj/system/exam')
 }
 
 const questionIdSet = ref([])
@@ -263,6 +282,13 @@ async function deleteExamQuestion(examId, questionId) {
   await delExamQuestionService(examId, questionId)
   // 删除竞赛中的题目之后需要重新获取竞赛详情, 以刷新竞赛包含的题目
   getExamDetailById(examId)
+
+  // 删除"待排除展示的题目 Id 集合"中对应元素
+  const index = excludeQuestionIdSet.value.indexOf(questionId);
+  if (index !== -1) {
+    excludeQuestionIdSet.value.splice(index, 1);
+  }
+
   ElMessage.success('竞赛题目删除成功')
 }
 
@@ -277,6 +303,13 @@ async function getExamDetailById(examId) {
 
   Object.assign(formExam, result.data)
   formExam.examDate = [result.data.startTime, result.data.endTime]
+
+  // 将竞赛已包含题目 Id 添加到"待排除展示的题目 Id 集合"中
+  // 由于每次添加竞赛题目之后都会刷新竞赛详情, 因此赋值之前先置为空, 避免重复添加
+  excludeQuestionIdSet.value = []
+  formExam.examQuestionList.forEach(element => {
+    excludeQuestionIdSet.value.push(element.questionId);
+  });
 }
 </script>
 
