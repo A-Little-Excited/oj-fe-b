@@ -54,7 +54,7 @@ router.beforeEach((to, from, next) => {
     // 能够获取到 token, 说明用户处于登录状态
     if (to.path === '/oj/login') {
       // 已登录用户访问登录页面时自动跳转回后台管理页面
-      next({ path: '/oj/system' })
+      next({ path: '/oj/system/cuser' })
     } else {
       next()
     }
